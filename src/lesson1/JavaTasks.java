@@ -1,6 +1,8 @@
 package lesson1;
 
 import kotlin.NotImplementedError;
+import java.io.*;
+import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -34,8 +36,77 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortTimes(String inputName, String outputName) throws NotImplementedError{
+        try {
+            File in = new File(inputName);
+            FileReader fileReader = new FileReader(in);
+            BufferedReader reader = new BufferedReader(fileReader);
+            String line = reader.readLine();
+
+            Scanner scanner = new Scanner(in);
+            int count = 0;
+            while (scanner.hasNextLine()) {
+                scanner.nextLine();
+                count++;
+            }
+
+            int[] times = new int[count];
+            int i = 0;
+
+            while (line != null) {
+                if (line.matches("^(0[1-9]|1[0-2])(:[0-5]\\d){2} [P|A]M$")) {
+                    String[] lineParts = line.substring(0, 8).split(":");
+                    int hours = Integer.parseInt(lineParts[0]);
+                    if (line.substring(9, 11).matches("AM")) {
+                        if (hours == 12) {
+                            lineParts[0] = "0";
+                        }
+                    } else {
+                        if (hours < 12) {
+                            hours += 12;
+                            lineParts[0] = Integer.toString(hours);
+                        }
+                    }
+                    times[i] = Integer.parseInt(lineParts[0]) * 10000 + Integer.parseInt(lineParts[1]) * 100
+                            + Integer.parseInt(lineParts[2]);
+                    i++;
+                } else {
+                    if (!line.isEmpty()) {
+                        throw new NotImplementedError();
+                    }
+                }
+                line = reader.readLine();
+            }
+
+            Sorts.insertionSort(times);
+
+            File out = new File(outputName);
+            FileWriter fileWriter = new FileWriter(out);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+            for (int value : times) {
+                String time;
+                if ((value / 10000 < 13) && (value / 10000 > 0)) {
+                    time = String.format("%02d:%02d:%02d ", value / 10000, value % 10000 / 100, value % 100);
+                    if (value / 10000 == 12) {
+                        time += "PM\n";
+                    } else {
+                        time += "AM\n";
+                    }
+                } else {
+                    if (value / 10000 > 12) {
+                        time = String.format("%02d:%02d:%02d ", value / 10000 - 12, value % 10000 / 100, value % 100);
+                        time += "PM\n";
+                    } else {
+                        time = String.format("%02d:%02d:%02d ", value / 10000 + 12, value % 10000 / 100, value % 100);
+                        time += "AM\n";
+                    }
+                }
+                writer.write(time);
+            }
+            writer.close();
+        } catch (IOException e) {
+            throw new NotImplementedError();
+        }
     }
 
     /**
