@@ -169,8 +169,76 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortTemperatures(String inputName, String outputName) throws NotImplementedError{
+        try {
+            File in = new File(inputName);
+            FileReader fileReader = new FileReader(in);
+            BufferedReader reader = new BufferedReader(fileReader);
+            String line = reader.readLine();
+
+            Scanner scanner = new Scanner(in);
+            int count = 0;
+            while (scanner.hasNextLine()) {
+                scanner.nextLine();
+                count++;
+            }
+
+            int[] degrees = new int[count];
+            int i = 0;
+
+            while (line != null) {
+                if (line.matches("^(([1-4]?\\d{1,2}.\\d)|(500.0))$")) {
+                    String[] lineParts = new String[2];
+                    lineParts[0] = line.substring(0, line.length() - 2);
+                    lineParts[1] = line.substring(line.length() - 1);
+                    degrees[i] = Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1]);
+                    i++;
+                } else {
+                    if (line.matches("^-0.0$")){
+                        throw new NotImplementedError();
+                    } else {
+                        if (line.matches("^-((1?\\d{1,2})|(2(([0-6]\\d)|(7[0-3])))).\\d$")){
+                            String[] lineParts = new String[2];
+                            lineParts[0] = line.substring(1, line.length() - 2);
+                            lineParts[1] = line.substring(line.length() - 1);
+                            degrees[i] = (Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1])) * -1;
+                            i++;
+                        } else {
+                            if (!line.isEmpty()) {
+                                throw new NotImplementedError();
+                            }
+                        }
+                    }
+                }
+                line = reader.readLine();
+            }
+
+            Sorts.quickSort(degrees);
+
+            File out = new File(outputName);
+            FileWriter fileWriter = new FileWriter(out);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+
+            for (int value : degrees) {
+                String temperature;
+                if ((value / 10 == 0) && (value < 0)) {
+                    temperature = "-" + (value / 10);
+                } else {
+                    temperature = "" + (value / 10);
+                }
+                temperature += ".";
+                if (value >= 0) {
+                    temperature += "" + (value % 10);
+                } else {
+                    temperature += "" + (value % 10) * -1;
+                }
+                temperature += "\n";
+                writer.write(temperature);
+            }
+            writer.close();
+        } catch (IOException e) {
+            throw new NotImplementedError();
+        }
     }
 
     /**
