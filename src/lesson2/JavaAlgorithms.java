@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
@@ -145,24 +144,15 @@ public class JavaAlgorithms {
      */
     static public int josephTask(int menNumber, int choiceInterval) {
         if ((menNumber > 0) && (choiceInterval > 0)) {
-            int result = 0;
-            if (choiceInterval == 1) {
-                result = menNumber;
+            if (menNumber == 1) {
+                return 1;
             } else {
-                ArrayList<Integer> men = new ArrayList<>();
+                int result = 0;
                 for (int i = 1; i <= menNumber; i++) {
-                    men.add(i);
+                    result = (result + choiceInterval) % i;
                 }
-                int personIndex = 0;
-                while (!men.isEmpty()) {
-                    if (men.size() == 1) {
-                        result = men.get(0);
-                    }
-                    personIndex = (personIndex + choiceInterval - 1) % men.size();
-                    men.remove(personIndex);
-                }
+                return result + 1;
             }
-            return result;
         } else {
             throw new NotImplementedError();
         }
