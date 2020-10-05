@@ -2,6 +2,12 @@ package lesson2;
 
 import kotlin.NotImplementedError;
 import kotlin.Pair;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
@@ -29,8 +35,63 @@ public class JavaAlgorithms {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
-        throw new NotImplementedError();
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws NotImplementedError{
+        try {
+            File in = new File(inputName);
+            FileReader fileReader = new FileReader(in);
+            BufferedReader reader = new BufferedReader(fileReader);
+            String line = reader.readLine();
+
+            Scanner scanner = new Scanner(in);
+            int count = 0;
+            while (scanner.hasNextLine()) {
+                scanner.nextLine();
+                count++;
+            }
+
+            if (count < 2) {
+                throw new NotImplementedError();
+            }
+
+            int[] deltaPrice = new int[count - 1];
+            int i = 0;
+
+            int first = Integer.parseInt(line);
+            line = reader.readLine();
+            int second;
+            do {
+                second = Integer.parseInt(line);
+                deltaPrice[i] = second - first;
+                first = second;
+                i++;
+                line = reader.readLine();
+            } while (line != null);
+
+            int maxSum = 0;
+            int sum = 0;
+            int startIndex = 0;
+            int from = 0;
+            int to = 0;
+
+            for (int j = 0; j < deltaPrice.length; j++) {
+                if (sum == 0) {
+                    startIndex = j;
+                }
+                sum += deltaPrice[j];
+                if (sum > maxSum) {
+                    from = startIndex;
+                    to = j;
+                    maxSum = sum;
+                }
+                if (sum < 0) {
+                    sum = 0;
+                }
+            }
+
+            return new Pair<>(from + 1, to + 2);
+        } catch (IOException e) {
+            throw new NotImplementedError();
+        }
     }
 
     /**
@@ -83,7 +144,28 @@ public class JavaAlgorithms {
      * но приветствуется попытка решить её самостоятельно.
      */
     static public int josephTask(int menNumber, int choiceInterval) {
-        throw new NotImplementedError();
+        if ((menNumber > 0) && (choiceInterval > 0)) {
+            int result = 0;
+            if (choiceInterval == 1) {
+                result = menNumber;
+            } else {
+                ArrayList<Integer> men = new ArrayList<>();
+                for (int i = 1; i <= menNumber; i++) {
+                    men.add(i);
+                }
+                int personIndex = 0;
+                while (!men.isEmpty()) {
+                    if (men.size() == 1) {
+                        result = men.get(0);
+                    }
+                    personIndex = (personIndex + choiceInterval - 1) % men.size();
+                    men.remove(personIndex);
+                }
+            }
+            return result;
+        } else {
+            throw new NotImplementedError();
+        }
     }
 
     /**
