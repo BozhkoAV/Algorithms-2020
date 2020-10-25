@@ -101,8 +101,109 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (!contains(o)) return false;
+        @SuppressWarnings("unchecked")
+        T t = (T) o;
+        Node<T> removedNode = find(t);
+        assert removedNode != null;
+        if (size == 1) {
+            root = null;
+            size--;
+            return true;
+        }
+        size--;
+        return remove(removedNode.value);
+    }
+
+    public boolean remove(T value) {
+        Node<T> current = find(value);
+        Node<T> parentNode = findParent(value);
+        assert parentNode != null;
+        assert current != null;
+        if (current.left == null && current.right == null) {
+            if (parentNode.left != null && parentNode.left.value == value) parentNode.left = null;
+            if (parentNode.right != null && parentNode.right.value == value) parentNode.right = null;
+        } else if (current.left == null) {
+            if (parentNode.left != null && parentNode.left.value == value) parentNode.left = current.right;
+            if (parentNode.right != null && parentNode.right.value == value) parentNode.right = current.right;
+        } else if (current.right == null) {
+            if (parentNode.left != null && parentNode.left.value == value) parentNode.left = current.left;
+            if (parentNode.right != null && parentNode.right.value == value) parentNode.right = current.left;
+        } else {
+            Node<T> changeNode = find(findMaxLeftChild(current.left, current.left.value));
+            assert changeNode != null;
+            Node<T> changeNodeParent = findParent(changeNode.value);
+
+            if (parentNode.left != null && parentNode.left.value == value) {
+                parentNode.left = changeNode;
+                if (changeNodeParent != null) {
+                    if (changeNodeParent.right.value == changeNode.value) {
+                        changeNodeParent.right = changeNode.left;
+                    } else {
+                        changeNodeParent.left = changeNode.left;
+                    }
+                }
+                parentNode.left.left = current.left;
+                parentNode.left.right = current.right;
+            }
+
+            if (parentNode.right != null && parentNode.right.value == value) {
+                parentNode.right = changeNode;
+                if (changeNodeParent != null) {
+                    if (changeNodeParent.right.value == changeNode.value) {
+                        changeNodeParent.right = changeNode.left;
+                    } else {
+                        changeNodeParent.left = changeNode.left;
+                    }
+                }
+                parentNode.right.left = current.left;
+                parentNode.right.right = current.right;
+            }
+        }
+        return true;
+    }
+
+    private T findMaxLeftChild(Node<T> t, T value) {
+        T maxValue = value;
+        if (t.right != null) {
+            if (t.right.value.compareTo(maxValue) > 0) maxValue = t.right.value;
+            return findMaxLeftChild(t.right, maxValue);
+        }
+        return maxValue;
+    }
+
+    private Node<T> findParent(T value) {
+        if (root.value == value) return null;
+        return findParent(root, value);
+    }
+
+    private Node<T> findParent(Node<T> t, T value) {
+        if ((t.left != null) && (t.left.value == value)) return t;
+        if ((t.right != null) && (t.right.value == value)) return t;
+        if (t.value.compareTo(value) > 0 && t.left != null) return findParent(t.left, value);
+        if (t.value.compareTo(value) < 0 && t.right != null) return findParent(t.right, value);
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        if (root != null) {
+            return traverse().toString();
+        }
+        return "Empty Tree";
+    }
+
+    private ArrayList<T> traverse() {
+        ArrayList<T> list = new ArrayList<>();
+        if (root != null) return traverse(root, list);
+        return list;
+    }
+
+    private ArrayList<T> traverse(Node<T> t, ArrayList<T> list) {
+        list.add(t.value);
+        if (t.left != null) traverse(t.left, list);
+        if (t.right != null) traverse(t.right, list);
+        return list;
     }
 
     @Nullable
