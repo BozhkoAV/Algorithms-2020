@@ -36,53 +36,54 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) throws NotImplementedError{
-        try {
-            File in = new File(inputName);
-            FileReader fileReader = new FileReader(in);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String line = reader.readLine();
+    static public void sortTimes(String inputName, String outputName) throws NotImplementedError, IOException{
+        // Трудоёмкость - O(n^2)
+        // Ресурсоёмкость - O(n*log(n))
+        File in = new File(inputName);
+        FileReader fileReader = new FileReader(in);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = reader.readLine();
 
-            Scanner scanner = new Scanner(in);
-            int count = 0;
-            while (scanner.hasNextLine()) {
-                scanner.nextLine();
-                count++;
-            }
+        Scanner scanner = new Scanner(in);
+        int count = 0;
+        while (scanner.hasNextLine()) {
+            scanner.nextLine();
+            count++;
+        }
 
-            int[] times = new int[count];
-            int i = 0;
+        int[] times = new int[count];
+        int i = 0;
 
-            while (line != null) {
-                if (line.matches("^(0[1-9]|1[0-2])(:[0-5]\\d){2} [P|A]M$")) {
-                    String[] lineParts = line.substring(0, 8).split(":");
-                    int hours = Integer.parseInt(lineParts[0]);
-                    if (line.substring(9, 11).matches("AM")) {
-                        if (hours == 12) {
-                            lineParts[0] = "0";
-                        }
-                    } else {
-                        if (hours < 12) {
-                            hours += 12;
-                            lineParts[0] = Integer.toString(hours);
-                        }
+        while (line != null) {
+            if (line.matches("^(0[1-9]|1[0-2])(:[0-5]\\d){2} [P|A]M$")) {
+                String[] lineParts = line.substring(0, 8).split(":");
+                int hours = Integer.parseInt(lineParts[0]);
+                if (line.substring(9, 11).matches("AM")) {
+                    if (hours == 12) {
+                        lineParts[0] = "0";
                     }
-                    times[i] = Integer.parseInt(lineParts[0]) * 10000 + Integer.parseInt(lineParts[1]) * 100
-                            + Integer.parseInt(lineParts[2]);
-                    i++;
                 } else {
-                    if (!line.isEmpty()) {
-                        throw new NotImplementedError();
+                    if (hours < 12) {
+                        hours += 12;
+                        lineParts[0] = Integer.toString(hours);
                     }
                 }
-                line = reader.readLine();
+                times[i] = Integer.parseInt(lineParts[0]) * 10000 + Integer.parseInt(lineParts[1]) * 100
+                        + Integer.parseInt(lineParts[2]);
+                i++;
+            } else {
+                if (!line.isEmpty()) {
+                    throw new NotImplementedError();
+                }
             }
+            line = reader.readLine();
+        }
 
-            Sorts.insertionSort(times);
+        Sorts.quickSort(times);
 
-            File out = new File(outputName);
-            FileWriter fileWriter = new FileWriter(out);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        File out = new File(outputName);
+        FileWriter fileWriter = new FileWriter(out);
+        try(BufferedWriter writer = new BufferedWriter(fileWriter)) {
             for (int value : times) {
                 String time;
                 if ((value / 10000 < 13) && (value / 10000 > 0)) {
@@ -103,9 +104,6 @@ public class JavaTasks {
                 }
                 writer.write(time);
             }
-            writer.close();
-        } catch (IOException e) {
-            throw new NotImplementedError();
         }
     }
 
@@ -169,75 +167,78 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    static public void sortTemperatures(String inputName, String outputName) throws NotImplementedError{
-        try {
-            File in = new File(inputName);
-            FileReader fileReader = new FileReader(in);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String line = reader.readLine();
+    static public void sortTemperatures(String inputName, String outputName) throws IOException, NotImplementedError{
+        // Трудоёмкость - O(n+k)
+        // Ресурсоёмкость - O(n)
+        File in = new File(inputName);
+        FileReader fileReader = new FileReader(in);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = reader.readLine();
 
-            Scanner scanner = new Scanner(in);
-            int count = 0;
-            while (scanner.hasNextLine()) {
-                scanner.nextLine();
-                count++;
-            }
+        Scanner scanner = new Scanner(in);
+        int count = 0;
+        while (scanner.hasNextLine()) {
+            scanner.nextLine();
+            count++;
+        }
 
-            int[] degrees = new int[count];
-            int i = 0;
+        int[] degrees = new int[count];
+        int i = 0;
 
-            while (line != null) {
-                if (line.matches("^(([1-4]?\\d{1,2}.\\d)|(500.0))$")) {
-                    String[] lineParts = new String[2];
-                    lineParts[0] = line.substring(0, line.length() - 2);
-                    lineParts[1] = line.substring(line.length() - 1);
-                    degrees[i] = Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1]);
-                    i++;
+        while (line != null) {
+            if (line.matches("^(([1-4]?\\d{1,2}.\\d)|(500.0))$")) {
+                String[] lineParts = new String[2];
+                lineParts[0] = line.substring(0, line.length() - 2);
+                lineParts[1] = line.substring(line.length() - 1);
+                degrees[i] = Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1]);
+                i++;
+            } else {
+                if (line.matches("^-0.0$")) {
+                    throw new NotImplementedError();
                 } else {
-                    if (line.matches("^-0.0$")){
-                        throw new NotImplementedError();
+                    if (line.matches("^-((1?\\d{1,2})|(2(([0-6]\\d)|(7[0-3])))).\\d$")) {
+                        String[] lineParts = new String[2];
+                        lineParts[0] = line.substring(1, line.length() - 2);
+                        lineParts[1] = line.substring(line.length() - 1);
+                        degrees[i] = (Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1])) * -1;
+                        i++;
                     } else {
-                        if (line.matches("^-((1?\\d{1,2})|(2(([0-6]\\d)|(7[0-3])))).\\d$")){
-                            String[] lineParts = new String[2];
-                            lineParts[0] = line.substring(1, line.length() - 2);
-                            lineParts[1] = line.substring(line.length() - 1);
-                            degrees[i] = (Integer.parseInt(lineParts[0]) * 10 + Integer.parseInt(lineParts[1])) * -1;
-                            i++;
-                        } else {
-                            if (!line.isEmpty()) {
-                                throw new NotImplementedError();
-                            }
+                        if (!line.isEmpty()) {
+                            throw new NotImplementedError();
                         }
                     }
                 }
-                line = reader.readLine();
             }
+            line = reader.readLine();
+        }
 
-            Sorts.quickSort(degrees);
+        for (int j = 0; j < degrees.length; j++) {
+            degrees[j] += 2730;
+        }
+        int[] sortedDegrees = Sorts.countingSort(degrees, 7730);
+        for (int j = 0; j < sortedDegrees.length; j++) {
+            sortedDegrees[j] -= 2730;
+        }
 
-            File out = new File(outputName);
-            FileWriter fileWriter = new FileWriter(out);
-            BufferedWriter writer = new BufferedWriter(fileWriter);
-
-            for (int value : degrees) {
-                String temperature;
-                if ((value / 10 == 0) && (value < 0)) {
-                    temperature = "-" + (value / 10);
-                } else {
-                    temperature = "" + (value / 10);
-                }
-                temperature += ".";
-                if (value >= 0) {
-                    temperature += "" + (value % 10);
-                } else {
-                    temperature += "" + (value % 10) * -1;
-                }
-                temperature += "\n";
-                writer.write(temperature);
-            }
-            writer.close();
-        } catch (IOException e) {
-            throw new NotImplementedError();
+        File out = new File(outputName);
+        FileWriter fileWriter = new FileWriter(out);
+        try(BufferedWriter writer = new BufferedWriter(fileWriter)) {
+             for (int value : sortedDegrees) {
+                 String temperature;
+                 if ((value / 10 == 0) && (value < 0)) {
+                     temperature = "-" + (value / 10);
+                 } else {
+                     temperature = "" + (value / 10);
+                 }
+                 temperature += ".";
+                 if (value >= 0) {
+                     temperature += "" + (value % 10);
+                 } else {
+                     temperature += "" + (value % 10) * -1;
+                 }
+                 temperature += "\n";
+                 writer.write(temperature);
+             }
         }
     }
 

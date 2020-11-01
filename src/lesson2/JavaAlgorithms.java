@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
@@ -34,63 +35,55 @@ public class JavaAlgorithms {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws NotImplementedError{
-        try {
-            File in = new File(inputName);
-            FileReader fileReader = new FileReader(in);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String line = reader.readLine();
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws IOException, NotImplementedError{
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(n-1)
+        File in = new File(inputName);
+        FileReader fileReader = new FileReader(in);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = reader.readLine();
 
-            Scanner scanner = new Scanner(in);
-            int count = 0;
-            while (scanner.hasNextLine()) {
-                scanner.nextLine();
-                count++;
-            }
-
-            if (count < 2) {
-                throw new NotImplementedError();
-            }
-
-            int[] deltaPrice = new int[count - 1];
-            int i = 0;
-
-            int first = Integer.parseInt(line);
-            line = reader.readLine();
-            int second;
-            do {
-                second = Integer.parseInt(line);
-                deltaPrice[i] = second - first;
-                first = second;
-                i++;
-                line = reader.readLine();
-            } while (line != null);
-
-            int maxSum = 0;
-            int sum = 0;
-            int startIndex = 0;
-            int from = 0;
-            int to = 0;
-
-            for (int j = 0; j < deltaPrice.length; j++) {
-                if (sum == 0) {
-                    startIndex = j;
-                }
-                sum += deltaPrice[j];
-                if (sum > maxSum) {
-                    from = startIndex;
-                    to = j;
-                    maxSum = sum;
-                }
-                if (sum < 0) {
-                    sum = 0;
-                }
-            }
-
-            return new Pair<>(from + 1, to + 2);
-        } catch (IOException e) {
-            throw new NotImplementedError();
+        Scanner scanner = new Scanner(in);
+        int count = 0;
+        while (scanner.hasNextLine()) {
+            scanner.nextLine();
+            count++;
         }
+
+        if (count < 2) throw new NotImplementedError();
+
+        int[] deltaPrice = new int[count - 1];
+        int i = 0;
+
+        int first = Integer.parseInt(line);
+        line = reader.readLine();
+        int second;
+        do {
+            second = Integer.parseInt(line);
+            deltaPrice[i] = second - first;
+            first = second;
+            i++;
+            line = reader.readLine();
+        } while (line != null);
+
+        int maxSum = 0;
+        int sum = 0;
+        int startIndex = 0;
+        int from = 0;
+        int to = 0;
+
+        for (int j = 0; j < deltaPrice.length; j++) {
+            if (sum == 0) startIndex = j;
+            sum += deltaPrice[j];
+            if (sum > maxSum) {
+                from = startIndex;
+                to = j;
+                maxSum = sum;
+            }
+            if (sum < 0) sum = 0;
+        }
+
+        return new Pair<>(from + 1, to + 2);
     }
 
     /**
@@ -143,6 +136,8 @@ public class JavaAlgorithms {
      * но приветствуется попытка решить её самостоятельно.
      */
     static public int josephTask(int menNumber, int choiceInterval) {
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(1)
         if ((menNumber > 0) && (choiceInterval > 0)) {
             if (menNumber == 1) {
                 return 1;

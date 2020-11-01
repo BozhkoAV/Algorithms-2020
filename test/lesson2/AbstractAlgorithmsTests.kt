@@ -2,8 +2,10 @@ package lesson2
 
 import java.io.BufferedWriter
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 abstract class AbstractAlgorithmsTests {
 
@@ -58,6 +60,12 @@ abstract class AbstractAlgorithmsTests {
         } finally {
             File("temp_prices.txt").delete()
         }
+        assertFailsWith<FileNotFoundException> {
+            optimizeBuyAndSell("input/buysell_in5.txt")
+        }
+        assertFailsWith<NotImplementedError> {
+            optimizeBuyAndSell("input/buysell_in4.txt")
+        }
     }
 
     fun josephTask(josephTask: (Int, Int) -> Int) {
@@ -70,6 +78,12 @@ abstract class AbstractAlgorithmsTests {
         for (i in 1..20) {
             assertEquals(1, josephTask(menNumber, 2))
             menNumber *= 2
+        }
+        assertFailsWith<NotImplementedError> {
+            josephTask(0, 1)
+        }
+        assertFailsWith<NotImplementedError> {
+            josephTask(1, 0)
         }
     }
 
