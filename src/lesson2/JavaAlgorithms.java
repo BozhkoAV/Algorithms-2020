@@ -179,6 +179,21 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit <= 1) return 0;
+        ArrayList<Integer> primes = new ArrayList<>();
+        primes.add(2);
+        for (int i = 3; i <= limit; i++) {
+            if (i > 10) {
+                if (i % 2 == 0 || i % 5 == 0) continue;
+            }
+            block:
+            {
+                for (int j : primes) {
+                    if (i % j == 0) break block;
+                }
+                primes.add(i);
+            }
+        }
+        return primes.size();
     }
 }

@@ -37,8 +37,8 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public void sortTimes(String inputName, String outputName) throws NotImplementedError, IOException{
-        // Трудоёмкость - O(n^2)
-        // Ресурсоёмкость - O(n*log(n))
+        // Трудоёмкость - O(n*log(n))
+        // Ресурсоёмкость - O(n)
         File in = new File(inputName);
         FileReader fileReader = new FileReader(in);
         BufferedReader reader = new BufferedReader(fileReader);
