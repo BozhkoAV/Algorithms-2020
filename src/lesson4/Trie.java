@@ -1,7 +1,6 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,8 +91,55 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
+    }
+
+    public class TrieIterator implements Iterator<String> {
+        ArrayDeque<String> words = new ArrayDeque<>();
+        String currentWord;
+
+        TrieIterator() {
+            if (root != null) findWord(root, "");
+        }
+
+        void findWord(Node node, String word) {
+            for (Map.Entry<Character, Node> child : node.children.entrySet()) {
+                if (child.getKey() != '\0') {
+                    findWord(child.getValue(), word + child.getKey());
+                } else {
+                    words.add(word);
+                }
+            }
+        }
+
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+        @Override
+        public boolean hasNext() {
+            return !words.isEmpty();
+        }
+
+        //возвращает ТЕКУЩЕЕ слово и удаляет его из ОЧЕРЕДИ
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(n)
+        @Override
+        public String next() {
+            currentWord = words.pop();
+            return currentWord;
+        }
+
+        //удаляет ТЕКУЩЕЕ слово из ДЕРЕВА
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(n)
+        @Override
+        public void remove() {
+            if (currentWord != null) {
+                Trie.this.remove(currentWord);
+                currentWord = null;
+            } else {
+                throw new IllegalStateException();
+            }
+        }
     }
 
 }

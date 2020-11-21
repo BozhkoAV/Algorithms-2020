@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
@@ -179,21 +178,26 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
     static public int calcPrimesNumber(int limit) {
-        if (limit <= 1) return 0;
-        ArrayList<Integer> primes = new ArrayList<>();
-        primes.add(2);
-        for (int i = 3; i <= limit; i++) {
-            if (i > 10) {
-                if (i % 2 == 0 || i % 5 == 0) continue;
+        // Трудоёмкость - O(n*log(log(n)))
+        // Ресурсоёмкость - O(n)
+        if (limit > 1) {
+            int count = 0;
+            boolean[] numbers = new boolean[limit + 1];
+            for (int i = 2; i <= limit; i++) {
+                numbers[i] = true;
             }
-            block:
-            {
-                for (int j : primes) {
-                    if (i % j == 0) break block;
+            for (int i = 2; i * i <= limit; i++) {
+                if (numbers[i]) {
+                    for (int j = i * i; j <= limit; j += i) {
+                        numbers[j] = false;
+                    }
                 }
-                primes.add(i);
             }
+            for (int i = 2; i <= limit; i++) {
+                if (numbers[i]) count++;
+            }
+            return count;
         }
-        return primes.size();
+        return 0;
     }
 }

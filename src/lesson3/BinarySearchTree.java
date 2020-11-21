@@ -101,6 +101,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
+        // Трудоёмкость - O(log(n))
+        // Ресурсоёмкость - O(n)
         if (!contains(o)) return false;
         @SuppressWarnings("unchecked")
         T t = (T) o;
