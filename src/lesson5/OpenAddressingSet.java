@@ -1,6 +1,5 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
@@ -16,6 +15,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private final Object[] storage;
 
     private int size = 0;
+
+    private Object deleted = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -67,7 +68,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != deleted) {
             if (current.equals(t)) {
                 return false;
             }
@@ -95,7 +96,30 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(1)
+        if (contains(o)) {
+            int index = startingIndex(o);
+
+            if (storage[index].equals(o)) {
+                storage[index] = deleted;
+                size--;
+                return true;
+            }
+
+            int startIndex = index;
+            index = (index + 1) % capacity;
+
+            while(index != startIndex) {
+                if (storage[index].equals(o)) {
+                    storage[index] = deleted;
+                    size--;
+                    return true;
+                }
+                index = (index + 1) % capacity;
+            }
+        }
+        return false;
     }
 
     /**
@@ -111,7 +135,35 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        int currentIndex = 0;
+        T currentObject;
+        int currentObjectIndex = 0;
+
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+        @Override
+        public boolean hasNext() {
+            return currentObjectIndex < size;
+        }
+
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(1)
+        @Override
+        public T next() {
+            if (hasNext()) {
+                while (storage[currentIndex] == null || storage[currentIndex].equals(deleted)) {
+                    currentIndex++;
+                }
+                currentObject = (T) storage[currentIndex];
+                currentIndex++;
+                currentObjectIndex++;
+                return currentObject;
+            }
+            throw new IllegalStateException();
+        }
     }
 }
