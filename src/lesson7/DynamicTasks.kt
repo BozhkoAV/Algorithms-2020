@@ -14,8 +14,55 @@ package lesson7
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
+// Трудоёмкость - O(first.length * second.length)
+// Ресурсоёмкость - O(first.length * second.length)
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    val storage = hashMapOf((0 to 0) to 0)
+    fillStorage(first.length, second.length, storage)
+    for (i in 1..first.length) {
+        for (j in 1..second.length) {
+            fillStorage(i, j, first[i - 1], second[j - 1], storage)
+        }
+    }
+
+    var result = ""
+    var firstLength = first.length
+    var secondLength = second.length
+
+    while (firstLength > 0 && secondLength > 0) {
+        if (first[firstLength - 1] == second[secondLength - 1]) {
+            result += first[firstLength - 1]
+            firstLength--
+            secondLength--
+        } else {
+            if (storage[firstLength - 1 to secondLength]!! > storage[firstLength to secondLength - 1]!!) {
+                firstLength--
+            } else {
+                secondLength--
+            }
+        }
+    }
+    return result.reversed()
+}
+
+fun fillStorage(firstSize: Int, secondSize: Int, storage: MutableMap<Pair<Int, Int>, Int> = hashMapOf()) {
+    for (i in 1..firstSize) {
+        storage[i to 0] = 0
+    }
+    for (j in 1..secondSize) {
+        storage[0 to j] = 0
+    }
+}
+
+fun fillStorage(
+    first: Int, second: Int, firstChar: Char, secondChar: Char,
+    storage: MutableMap<Pair<Int, Int>, Int> = hashMapOf()
+) {
+    if (firstChar == secondChar) {
+        storage[first to second] = storage[first - 1 to second - 1]!! + 1
+    } else {
+        storage[first to second] = Math.max(storage[first to second - 1]!!, storage[first - 1 to second]!!)
+    }
 }
 
 /**
@@ -30,8 +77,44 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
+//Трудоемкость = O(n^2)
+//Ресурсоемкость = O(n)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    if (list.isEmpty()) return emptyList()
+    //Массив, в ктором хранится длина наибольшей возрастающей подпоследовательности, оканчивающейся на элементе с индексом i
+    val maxLenIncSubSeqForElement = mutableListOf<Int>()
+    //Массив, в котором хранится позиция элемента идущего перед текущим в максимальной возрастающей последовательности
+    val previous = mutableListOf<Int>()
+
+    for (i in list.indices) {
+        maxLenIncSubSeqForElement.add(i, 1)
+        previous.add(i, -1)
+        for (j in 0 until i) {
+            if (list[j] < list[i] && maxLenIncSubSeqForElement[j] + 1 > maxLenIncSubSeqForElement[i]) {
+                maxLenIncSubSeqForElement[i] = maxLenIncSubSeqForElement[j] + 1
+                previous[i] = j
+            }
+        }
+    }
+
+    //находим длину наибольшего возрастающего ряда
+    //находим индекс элемента, которым будет заканчиваться эта последовательность
+    var position = 0
+    var maxLength = maxLenIncSubSeqForElement[0]
+    for (i in list.indices) {
+        if (maxLenIncSubSeqForElement[i] > maxLength) {
+            position = i
+            maxLength = maxLenIncSubSeqForElement[i]
+        }
+    }
+
+    //восстановление последовательности с помощью previous
+    val answer = mutableListOf<Int>()
+    while (position != -1) {
+        answer.add(list[position])
+        position = previous[position]
+    }
+    return answer.reversed()
 }
 
 /**
