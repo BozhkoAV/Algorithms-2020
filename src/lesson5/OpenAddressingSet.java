@@ -165,5 +165,19 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             }
             throw new IllegalStateException();
         }
+
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+        @Override
+        public void remove() {
+            if (currentObject != null) {
+                storage[currentIndex - 1] = deleted;
+                currentObject = null;
+                currentObjectIndex--;
+                size--;
+            } else {
+                throw new IllegalStateException();
+            }
+        }
     }
 }

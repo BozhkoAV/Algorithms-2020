@@ -226,5 +226,36 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+        val bitsNumber = 4
+        val controlSet = mutableSetOf<Int>()
+        val openAddressingSet = create<Int>(bitsNumber)
+        for (i in 1..16) {
+            val value = i - 1
+            openAddressingSet += value
+            controlSet += value
+        }
+        val iterator = openAddressingSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        openAddressingSet.remove(1)
+        controlSet.remove(1)
+        assertEquals(
+            controlSet.size, openAddressingSet.size,
+            "The size of the set is incorrect: was ${openAddressingSet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                openAddressingSet.contains(element),
+                "Open addressing set doesn't have the element $element from the control set."
+            )
+        }
+        for (element in openAddressingSet) {
+            assertTrue(
+                controlSet.contains(element),
+                "Open addressing set has the element $element that is not in control set."
+            )
+        }
+        println("All clear!")
     }
 }

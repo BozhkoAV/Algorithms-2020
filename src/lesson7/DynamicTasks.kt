@@ -77,44 +77,64 @@ fun fillStorage(
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
-//Трудоемкость = O(n^2)
+//Трудоемкость = O(n*log(n))
 //Ресурсоемкость = O(n)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
     if (list.isEmpty()) return emptyList()
-    //Массив, в ктором хранится длина наибольшей возрастающей подпоследовательности, оканчивающейся на элементе с индексом i
-    val maxLenIncSubSeqForElement = mutableListOf<Int>()
-    //Массив, в котором хранится позиция элемента идущего перед текущим в максимальной возрастающей последовательности
+    //Массив, в котором хранится наименьший последний эелемент для последовательности длины i
+    val minLastElementOfSubSeq = mutableListOf<Int>()
+    //Массив, в котором хранится индекс элемента массива list, который предшествовал рассматриваемому в подпоследовательности
     val previous = mutableListOf<Int>()
 
-    for (i in list.indices) {
-        maxLenIncSubSeqForElement.add(i, 1)
-        previous.add(i, -1)
-        for (j in 0 until i) {
-            if (list[j] < list[i] && maxLenIncSubSeqForElement[j] + 1 > maxLenIncSubSeqForElement[i]) {
-                maxLenIncSubSeqForElement[i] = maxLenIncSubSeqForElement[j] + 1
-                previous[i] = j
-            }
+    minLastElementOfSubSeq.add(0, Int.MAX_VALUE)
+    for (i in 1..list.size) {
+        minLastElementOfSubSeq.add(i, Int.MIN_VALUE)
+        previous.add(i - 1, 0)
+    }
+
+    //Массив, в котором хранится индекс minLastElementOfSubSeq[i] в масссиве list
+    val position = mutableListOf<Int>()
+    position.add(0, -1)
+    for (i in 1..list.size) {
+        position.add(i, 0)
+    }
+
+    var maxLength = 0
+
+    for (i in list.size - 1 downTo 0) {
+        val j = binarySearch(minLastElementOfSubSeq, list[i])
+        if (minLastElementOfSubSeq[j - 1] > list[i] && list[i] > minLastElementOfSubSeq[j]) {
+            minLastElementOfSubSeq[j] = list[i]
+            position[j] = i
+            previous[i] = position[j - 1]
+            maxLength = Math.max(maxLength, j)
         }
     }
 
-    //находим длину наибольшего возрастающего ряда
-    //находим индекс элемента, которым будет заканчиваться эта последовательность
-    var position = 0
-    var maxLength = maxLenIncSubSeqForElement[0]
-    for (i in list.indices) {
-        if (maxLenIncSubSeqForElement[i] > maxLength) {
-            position = i
-            maxLength = maxLenIncSubSeqForElement[i]
-        }
-    }
-
-    //восстановление последовательности с помощью previous
+    //восстановление последовательности с помощью previous и position
     val answer = mutableListOf<Int>()
-    while (position != -1) {
-        answer.add(list[position])
-        position = previous[position]
+    var currentPosition = position[maxLength]
+    while (currentPosition != -1) {
+        answer.add(list[currentPosition])
+        currentPosition = previous[currentPosition]
     }
-    return answer.reversed()
+    return answer
+}
+
+fun binarySearch(list: List<Int>, value: Int): Int {
+    var left = 0
+    var right = list.size - 1
+    var mid: Int
+
+    while (left < right - 1) {
+        mid = (left + right) / 2
+        if (list[mid] > value) {
+            left = mid
+        } else {
+            right = mid
+        }
+    }
+    return right
 }
 
 /**
